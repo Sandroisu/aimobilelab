@@ -14,12 +14,12 @@ class AssistantMessageReducerTest {
         s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("ично"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.End)
 
-        assertEquals("m_01", s?.id)
-        assertEquals(1, s?.attempt)
-        assertFalse(s?.isStreaming ?: true)
-        assertEquals("Отлично", s?.finalText)
-        assertEquals("Отлично", s?.partialText)
-        assertNull(s?.error)
+        assertEquals("m_01", s.id)
+        assertEquals(1, s.attempt)
+        assertFalse(s.isStreaming ?: true)
+        assertEquals("Отлично", s.finalText)
+        assertEquals("Отлично", s.partialText)
+        assertNull(s.error)
     }
 
     @Test
@@ -29,11 +29,11 @@ class AssistantMessageReducerTest {
         s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Час"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.Error("timeout"))
 
-        assertEquals("m_02", s?.id)
-        assertEquals("Час", s?.partialText)
-        assertNull(s?.finalText)
-        assertEquals("timeout", s?.error)
-        assertFalse(s?.isStreaming ?: true)
+        assertEquals("m_02", s.id)
+        assertEquals("Час", s.partialText)
+        assertNull(s.finalText)
+        assertEquals("timeout", s.error)
+        assertFalse(s.isStreaming)
     }
 
     @Test
