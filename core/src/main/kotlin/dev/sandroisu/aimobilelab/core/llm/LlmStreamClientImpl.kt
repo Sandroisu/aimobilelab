@@ -4,19 +4,24 @@ import dev.sandroisu.aimobilelab.core.chat.StreamEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
+import kotlin.coroutines.coroutineContext
 
-class LlmStreamClientImpl: LLMStreamClient {
+class LlmStreamClientImpl: LlmStreamClient {
     override fun stream(
         id: String, attempt: Int,
     ): Flow<StreamEnvelope> {
         return flow {
-            emit(StreamEnvelope("key1#1", StreamEvent.Start("key1", 1)))
-            delay(500)
-            for (i in 0..3 ) {
-                emit(StreamEnvelope("key1#1", StreamEvent.Delta("hello $i\n")))
-                delay(1000)
+            val key = "$id#$attempt"
+            emit(StreamEnvelope(key, StreamEvent.Start(id, attempt)))
+            delay(300)
+            val parts = listOf("Пр", "ив", "ет", "!\n")
+            for (p in parts) {
+                if (!coroutineContext.isActive) return@flow
+                emit(StreamEnvelope(key, StreamEvent.Delta(p)))
+                delay(300)
             }
-            emit(StreamEnvelope("key1#1", StreamEvent.End))
+            emit(StreamEnvelope(key, StreamEvent.End))
         }
     }
 }
