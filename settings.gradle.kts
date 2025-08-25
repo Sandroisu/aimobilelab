@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "AiMobileLab"
 include(":app")
 include(":core")
+include(":api")
