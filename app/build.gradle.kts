@@ -1,10 +1,19 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
+val geminiKey =
+    gradleLocalProperties(
+        rootDir,
+        providers = providers,
+    ).getProperty("GEMINI_API_KEY") ?: ""
+
 android {
+    android.buildFeatures.buildConfig = true
     namespace = "dev.sandroisu.aimobilelab"
     compileSdk = 35
 
@@ -25,6 +34,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+        }
+        debug {
+            buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
         }
     }
     compileOptions {
@@ -42,9 +55,12 @@ android {
 dependencies {
     implementation(projects.core)
 
+    implementation(platform(libs.kotlin.bom))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
