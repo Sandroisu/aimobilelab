@@ -27,7 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.sandroisu.aimobilelab.BuildConfig
+import dev.sandroisu.aimobilelab.api.client.GeminiLlmStreamClient
 import dev.sandroisu.aimobilelab.core.chat.Role
+import dev.sandroisu.aimobilelab.core.llm.LlmStreamClient
 import dev.sandroisu.aimobilelab.core.llm.LlmStreamClientImpl
 import dev.sandroisu.aimobilelab.presentation.state.ChatMessageUi
 import dev.sandroisu.aimobilelab.presentation.state.ChatScreenState
@@ -39,10 +42,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModel: ChatViewModel = ViewModelProvider(
-            this, ChatViewModelFactory
-                (LlmStreamClientImpl())
-        )[ChatViewModel::class.java]
+
+        val llmStreamClient: LlmStreamClient =
+            GeminiLlmStreamClient(
+                apiKeyProvider = { BuildConfig.GEMINI_API_KEY },
+            )
+        val viewModel: ChatViewModel =
+            ViewModelProvider(
+                this,
+                ChatViewModelFactory
+                    (llmStreamClient),
+            )[ChatViewModel::class.java]
         setContent {
             AiMobileLabTheme {
                 Chat(viewModel = viewModel)
@@ -59,7 +69,7 @@ fun Chat(viewModel: ChatViewModel) {
         onInputChange = viewModel::onInputChange,
         onSend = viewModel::send,
         onCancel = viewModel::cancel,
-        onRetry = viewModel::retry
+        onRetry = viewModel::retry,
     )
 }
 
@@ -79,15 +89,17 @@ fun ChatScreen(
         }
     }
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
     ) {
         LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            state = listState
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            state = listState,
         ) {
             items(state.messages, key = { it.id }) { m ->
                 MessageBubble(m)
@@ -95,12 +107,12 @@ fun ChatScreen(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             OutlinedTextField(
                 value = state.input,
                 onValueChange = onInputChange,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Spacer(modifier = Modifier.width(8.dp))
             when {
@@ -115,18 +127,19 @@ fun ChatScreen(
 @Composable
 private fun MessageBubble(m: ChatMessageUi) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = if (m.role == Role.User) Arrangement.End else Arrangement.Start
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        horizontalArrangement = if (m.role == Role.User) Arrangement.End else Arrangement.Start,
     ) {
         Text(
             text = m.text,
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .padding(12.dp),
-            textAlign = if (m.role == Role.User) TextAlign.End else TextAlign.Start
+            modifier =
+                Modifier
+                    .widthIn(max = 280.dp)
+                    .padding(12.dp),
+            textAlign = if (m.role == Role.User) TextAlign.End else TextAlign.Start,
         )
     }
 }
-

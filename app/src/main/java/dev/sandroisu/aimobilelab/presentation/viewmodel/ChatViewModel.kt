@@ -19,10 +19,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() {
-
-    class ChatViewModelFactory(private val client: LlmStreamClient) : ViewModelProvider
-        .Factory {
+class ChatViewModel(
+    private val llmStreamClient: LlmStreamClient,
+) : ViewModel() {
+    class ChatViewModelFactory(
+        private val client: LlmStreamClient,
+    ) : ViewModelProvider
+            .Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
                 return ChatViewModel(client) as T
@@ -36,15 +39,16 @@ class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() 
     private var current: AssistantMessageState? = null
     private val chatHistory = mutableListOf<ChatMessage>()
 
-    private val _screenState = MutableStateFlow<ChatScreenState>(
-        ChatScreenState(
-            messages = emptyList(),
-            input = "",
-            canSend = false,
-            canCancel = false,
-            canRetry = false,
+    private val _screenState =
+        MutableStateFlow<ChatScreenState>(
+            ChatScreenState(
+                messages = emptyList(),
+                input = "",
+                canSend = false,
+                canCancel = false,
+                canRetry = false,
+            ),
         )
-    )
     val screenState: StateFlow<ChatScreenState> = _screenState.asStateFlow()
 
     fun onInputChange(text: String) {
@@ -76,16 +80,20 @@ class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() 
         recomputeUi()
     }
 
-    private fun startRequest(id: String, attempt: Int) {
+    private fun startRequest(
+        id: String,
+        attempt: Int,
+    ) {
         job?.cancel()
         activeKey = "$id#$attempt"
         reduceEventAndCommit(StreamEvent.Start(id, attempt))
-        job = viewModelScope.launch {
-            llmStreamClient.stream(id, attempt).collect { env ->
-                if (env.key != activeKey) return@collect
-                reduceEventAndCommit(env.streamEvent)
+        job =
+            viewModelScope.launch {
+                llmStreamClient.stream(id, attempt, history = chatHistory).collect { env ->
+                    if (env.key != activeKey) return@collect
+                    reduceEventAndCommit(env.streamEvent)
+                }
             }
-        }
     }
 
     private fun reduceEventAndCommit(event: StreamEvent) {
@@ -100,29 +108,38 @@ class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() 
     }
 
     private fun recomputeUi() {
-        val list = buildList {
-            addAll(chatHistory.mapIndexed { i, m ->
-                ChatMessageUi(
-                    id = "h$i-${m.role}", role = m.role, text = m.text, isStreaming = false
+        val list =
+            buildList {
+                addAll(
+                    chatHistory.mapIndexed { i, m ->
+                        ChatMessageUi(
+                            id = "h$i-${m.role}",
+                            role = m.role,
+                            text = m.text,
+                            isStreaming = false,
+                        )
+                    },
                 )
-            })
-            if (current != null && current!!.partialText.isNotEmpty()) {
-                add(
-                    ChatMessageUi(
-                        id = "cur", role = Role.Assistant, text = current!!.partialText,
-                        isStreaming = true
+                if (current != null && current!!.partialText.isNotEmpty()) {
+                    add(
+                        ChatMessageUi(
+                            id = "cur",
+                            role = Role.Assistant,
+                            text = current!!.partialText,
+                            isStreaming = true,
+                        ),
                     )
-                )
+                }
             }
-        }
         val canCancel = current?.isStreaming == true
         val canRetry = current?.error != null
         val canSend = _screenState.value.input.isNotBlank() && !canCancel
-        _screenState.value = _screenState.value.copy(
-            messages = list,
-            canSend = canSend,
-            canCancel = canCancel,
-            canRetry = canRetry
-        )
+        _screenState.value =
+            _screenState.value.copy(
+                messages = list,
+                canSend = canSend,
+                canCancel = canCancel,
+                canRetry = canRetry,
+            )
     }
 }

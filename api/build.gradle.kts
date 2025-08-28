@@ -14,7 +14,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(platform(libs.kotlin.bom))
+    implementation(projects.core)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.logging)

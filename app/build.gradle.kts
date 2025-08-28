@@ -13,14 +13,14 @@ val geminiKey =
     ).getProperty("GEMINI_API_KEY") ?: ""
 
 android {
-    android.buildFeatures.buildConfig = true
+
     namespace = "dev.sandroisu.aimobilelab"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.sandroisu.aimobilelab"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -48,14 +48,14 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
 
 dependencies {
     implementation(projects.core)
-
-    implementation(platform(libs.kotlin.bom))
+    implementation(projects.api)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -1,5 +1,6 @@
 package dev.sandroisu.aimobilelab.core.llm
 
+import dev.sandroisu.aimobilelab.core.chat.ChatMessage
 import dev.sandroisu.aimobilelab.core.chat.StreamEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -7,9 +8,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 
-class LlmStreamClientImpl: LlmStreamClient {
+class LlmStreamClientImpl : LlmStreamClient {
     override fun stream(
-        id: String, attempt: Int,
+        id: String,
+        attempt: Int,
+        history: List<ChatMessage>,
     ): Flow<StreamEnvelope> {
         return flow {
             val key = "$id#$attempt"
