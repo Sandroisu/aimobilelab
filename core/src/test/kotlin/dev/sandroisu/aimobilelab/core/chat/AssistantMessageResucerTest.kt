@@ -16,7 +16,7 @@ class AssistantMessageReducerTest {
 
         assertEquals("m_01", s.id)
         assertEquals(1, s.attempt)
-        assertFalse(s.isStreaming ?: true)
+        assertFalse(s.isStreaming)
         assertEquals("Отлично", s.finalText)
         assertEquals("Отлично", s.partialText)
         assertNull(s.error)
@@ -61,5 +61,44 @@ class AssistantMessageReducerTest {
         assertNull(s.finalText)
         assertEquals(true, s.isStreaming)
         assertNull(s.error)
+    }
+
+    @Test
+    fun delta_without_start_sets_error() {
+        var s: AssistantMessageState? = null
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("X"))
+        assertEquals("", s.id)
+        assertEquals(1, s.attempt)
+        assertFalse(s.isStreaming)
+        assertNull(s.finalText)
+        assertEquals("", s.partialText)
+        assertEquals("delta_without_start", s.error)
+    }
+
+    @Test
+    fun end_without_start_sets_error() {
+        var s: AssistantMessageState? = null
+        s = AssistantMessageReducer.reduce(s, StreamEvent.End)
+        assertEquals("", s.id)
+        assertEquals(1, s.attempt)
+        assertFalse(s.isStreaming)
+        assertNull(s.finalText)
+        assertEquals("", s.partialText)
+        assertEquals("end_without_start", s.error)
+    }
+
+    @Test
+    fun cancel_marks_error_and_preserves_partial() {
+        var s: AssistantMessageState? = null
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_05", attempt = 1))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Прив"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Error("canceled"))
+
+        assertEquals("m_05", s.id)
+        assertEquals(1, s.attempt)
+        assertFalse(s.isStreaming)
+        assertEquals("Прив", s.partialText)
+        assertNull(s.finalText)
+        assertEquals("canceled", s.error)
     }
 }
