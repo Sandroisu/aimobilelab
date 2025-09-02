@@ -10,15 +10,15 @@ class AssistantMessageReducerTest {
     fun success_flow_start_delta_delta_end() {
         var s: AssistantMessageState? = null
         s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_01", attempt = 1))
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Отл"))
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("ично"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Gre"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("at"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.End)
 
         assertEquals("m_01", s.id)
         assertEquals(1, s.attempt)
         assertFalse(s.isStreaming)
-        assertEquals("Отлично", s.finalText)
-        assertEquals("Отлично", s.partialText)
+        assertEquals("Great", s.finalText)
+        assertEquals("Great", s.partialText)
         assertNull(s.error)
     }
 
@@ -26,11 +26,11 @@ class AssistantMessageReducerTest {
     fun error_flow_keeps_partial_text() {
         var s: AssistantMessageState? = null
         s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_02", attempt = 1))
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Час"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Hour"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.Error("timeout"))
 
         assertEquals("m_02", s.id)
-        assertEquals("Час", s.partialText)
+        assertEquals("Hour", s.partialText)
         assertNull(s.finalText)
         assertEquals("timeout", s.error)
         assertFalse(s.isStreaming)
@@ -43,7 +43,7 @@ class AssistantMessageReducerTest {
         s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("A"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.End)
         val before = s
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Хвост"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("tail"))
 
         assertEquals(before, s)
     }
@@ -52,7 +52,7 @@ class AssistantMessageReducerTest {
     fun second_start_closes_previous_and_starts_new() {
         var s: AssistantMessageState? = null
         s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_04", attempt = 1))
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Старый"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Old"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_04", attempt = 2))
 
         assertEquals("m_04", s.id)
@@ -91,13 +91,13 @@ class AssistantMessageReducerTest {
     fun cancel_marks_error_and_preserves_partial() {
         var s: AssistantMessageState? = null
         s = AssistantMessageReducer.reduce(s, StreamEvent.Start(id = "m_05", attempt = 1))
-        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Прив"))
+        s = AssistantMessageReducer.reduce(s, StreamEvent.Delta("Hel"))
         s = AssistantMessageReducer.reduce(s, StreamEvent.Error("canceled"))
 
         assertEquals("m_05", s.id)
         assertEquals(1, s.attempt)
         assertFalse(s.isStreaming)
-        assertEquals("Прив", s.partialText)
+        assertEquals("Hel", s.partialText)
         assertNull(s.finalText)
         assertEquals("canceled", s.error)
     }
