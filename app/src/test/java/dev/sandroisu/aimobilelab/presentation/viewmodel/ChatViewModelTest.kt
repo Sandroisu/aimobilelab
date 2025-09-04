@@ -118,6 +118,60 @@ class ChatViewModelTest {
             assertEquals(1, assistantFinal.size)
         }
 
+    @Test
+    fun late_chunk_after_end_is_ignored() =
+        runTest(dispatcher) {
+            val client = FakeLateChunkClient
+            val vm = ChatViewModel(client)
+            vm.onInputChange("Hi")
+            vm.send()
+            advanceTimeBy(800)
+            runCurrent()
+            val ui = vm.screenState.value
+            val assistantFinal = ui.messages.filter { it.role == Role.Assistant && !it.isStreaming }
+            assertEquals(1, assistantFinal.size)
+            assertEquals("A", assistantFinal.first().text)
+            assertFalse(ui.canRetry)
+            assertFalse(ui.canCancel)
+        }
+
+    @Test
+    fun send_is_disabled_while_streaming_and_enabled_after() =
+        runTest(dispatcher) {
+            val client = FakeClient(parts = listOf("X", "Y", "Z"), errorAt = null, chunkDelayMs = 300)
+            val vm = ChatViewModel(client)
+            vm.onInputChange("msg")
+            vm.send()
+            val uiDuring = vm.screenState.value
+            assertTrue(uiDuring.canCancel)
+            assertFalse(uiDuring.canSend)
+            advanceTimeBy(1200)
+            runCurrent()
+            val uiAfter = vm.screenState.value
+            assertFalse(uiAfter.canCancel)
+            vm.onInputChange("next")
+            val uiReady = vm.screenState.value
+            assertTrue(uiReady.canSend)
+        }
+
+    private object FakeLateChunkClient : LlmStreamClient {
+        override fun stream(
+            id: String,
+            attempt: Int,
+            history: List<ChatMessage>,
+        ): Flow<StreamEnvelope> =
+            flow {
+                val key = "$id#$attempt"
+                emit(StreamEnvelope(key, StreamEvent.Start(id, attempt)))
+                delay(200)
+                emit(StreamEnvelope(key, StreamEvent.Delta("A")))
+                delay(200)
+                emit(StreamEnvelope(key, StreamEvent.End))
+                delay(200)
+                emit(StreamEnvelope(key, StreamEvent.Delta("TAIL")))
+            }
+    }
+
     private class FakeClient(
         private val parts: List<String>,
         var errorAt: Int?,

@@ -101,6 +101,7 @@ class ChatViewModel(
         if (!next.isStreaming && next.error == null && next.finalText != null) {
             chatHistory.add(ChatMessage(Role.Assistant, next.finalText ?: ""))
             current = null
+            activeKey = null
         } else {
             current = next
         }
