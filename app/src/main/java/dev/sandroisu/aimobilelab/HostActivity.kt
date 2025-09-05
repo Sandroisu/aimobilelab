@@ -27,11 +27,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.sandroisu.aimobilelab.BuildConfig
 import dev.sandroisu.aimobilelab.api.client.GeminiLlmStreamClient
 import dev.sandroisu.aimobilelab.core.chat.Role
 import dev.sandroisu.aimobilelab.core.llm.LlmStreamClient
-import dev.sandroisu.aimobilelab.core.llm.LlmStreamClientImpl
 import dev.sandroisu.aimobilelab.presentation.state.ChatMessageUi
 import dev.sandroisu.aimobilelab.presentation.state.ChatScreenState
 import dev.sandroisu.aimobilelab.presentation.viewmodel.ChatViewModel
