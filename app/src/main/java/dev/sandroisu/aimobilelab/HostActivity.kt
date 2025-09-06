@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -62,12 +64,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Chat(viewModel: ChatViewModel) {
     val state = viewModel.screenState.collectAsStateWithLifecycle()
+    val keyboard = LocalSoftwareKeyboardController.current
     ChatScreen(
         state = state.value,
         onInputChange = viewModel::onInputChange,
-        onSend = viewModel::send,
+        onSend = {
+            keyboard?.hide()
+            viewModel.send()
+        },
         onCancel = viewModel::cancel,
-        onRetry = viewModel::retry,
+        onRetry = {
+            keyboard?.hide()
+            viewModel.retry()
+        },
     )
 }
 
@@ -81,6 +90,7 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
+
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             listState.animateScrollToItem(state.messages.lastIndex)
@@ -90,7 +100,7 @@ fun ChatScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp),
     ) {
         LazyColumn(
             modifier =
@@ -115,8 +125,8 @@ fun ChatScreen(
             Spacer(modifier = Modifier.width(8.dp))
             when {
                 state.canCancel -> Button(onClick = onCancel) { Text("Cancel") }
-                state.canRetry -> Button(onClick = onRetry) { Text("Retry") }
-                else -> Button(onClick = onSend, enabled = state.canSend) { Text("Send") }
+                state.canRetry -> Button(onClick = { onRetry() }) { Text("Retry") }
+                else -> Button(onClick = { onSend() }, enabled = state.canSend) { Text("Send") }
             }
         }
     }
