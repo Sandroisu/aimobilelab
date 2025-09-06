@@ -1,4 +1,7 @@
-![ai_mobile_lab](https://github.com/user-attachments/assets/3e581ea6-f020-4e39-a049-96bc71daf208)
+
+![ai_mobile_lab](https://github.com/user-attachments/assets/3d7d500b-63c0-4b7b-9b9d-44a74689762d)
+
+
 AI Mobile Lab (Android)
 
 Demo
