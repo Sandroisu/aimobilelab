@@ -15,7 +15,7 @@ On-device AI experiments for Android with Jetpack Compose.
 
 To try ideas fast and share simple demos.
 
-What’s inside
+## What’s inside
 
 Jetpack Compose UI
 
