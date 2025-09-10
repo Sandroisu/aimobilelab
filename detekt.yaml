@@ -1,0 +1,17 @@
+build:
+  maxIssues: 0
+config:
+  validation: true
+style:
+  MagicNumber:
+    active: true
+  WildcardImport:
+    active: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+naming:
+  ClassNaming:
+    active: true
+  FunctionNaming:
+    active: true
