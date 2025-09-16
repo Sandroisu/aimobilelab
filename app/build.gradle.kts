@@ -27,6 +27,33 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile =
+                file(
+                    gradleLocalProperties(
+                        rootDir,
+                        providers = providers,
+                    ).getProperty("AIMOBILELAB_STORE_FILE"),
+                )
+            storePassword =
+                gradleLocalProperties(
+                    rootDir,
+                    providers = providers,
+                ).getProperty("AIMOBILELAB_STORE_PASSWORD")
+            keyAlias =
+                gradleLocalProperties(
+                    rootDir,
+                    providers = providers,
+                ).getProperty("AIMOBILELAB_KEY_ALIAS")
+            keyPassword =
+                gradleLocalProperties(
+                    rootDir,
+                    providers = providers,
+                ).getProperty("AIMOBILELAB_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
