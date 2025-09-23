@@ -4,8 +4,8 @@ object AssistantMessageReducer {
     fun reduce(
         current: AssistantMessageState?,
         event: StreamEvent,
-    ): AssistantMessageState =
-        when (event) {
+    ): AssistantMessageState {
+        return when (event) {
             is StreamEvent.Start -> {
                 AssistantMessageState(
                     id = event.id,
@@ -72,4 +72,5 @@ object AssistantMessageReducer {
                 )
             }
         }
+    }
 }
