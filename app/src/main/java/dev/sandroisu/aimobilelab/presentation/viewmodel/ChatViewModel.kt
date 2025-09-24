@@ -19,13 +19,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class ChatViewModel(
-    private val llmStreamClient: LlmStreamClient,
-) : ViewModel() {
+class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() {
     class ChatViewModelFactory(
         private val client: LlmStreamClient,
     ) : ViewModelProvider
-            .Factory {
+    .Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
                 return ChatViewModel(client) as T

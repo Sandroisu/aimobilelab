@@ -10,9 +10,9 @@ sealed class StreamEvent {
         val text: String,
     ) : StreamEvent()
 
-    data object End : StreamEvent()
-
     data class Error(
         val message: String,
     ) : StreamEvent()
+
+    data object End : StreamEvent()
 }
