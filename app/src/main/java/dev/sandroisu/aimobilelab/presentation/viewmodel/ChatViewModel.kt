@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() {
+
+    @Suppress("UNCHECKED_CAST")
     class ChatViewModelFactory(
         private val client: LlmStreamClient,
     ) : ViewModelProvider
@@ -38,7 +40,7 @@ class ChatViewModel(private val llmStreamClient: LlmStreamClient) : ViewModel() 
     private val chatHistory = mutableListOf<ChatMessage>()
 
     private val _screenState =
-        MutableStateFlow<ChatScreenState>(
+        MutableStateFlow(
             ChatScreenState(
                 messages = emptyList(),
                 input = "",
