@@ -1,6 +1,7 @@
 package dev.sandroisu.aimobilelab.core.chat
 
 sealed class StreamEvent {
+
     data class Start(
         val id: String,
         val attempt: Int,
